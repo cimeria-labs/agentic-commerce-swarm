@@ -1,16 +1,16 @@
 # Agentic Commerce Swarm
 
-[![Tests](https://github.com/clawmerio/agentic-commerce-swarm/actions/workflows/tests.yml/badge.svg)](https://github.com/clawmerio/agentic-commerce-swarm/actions/workflows/tests.yml)
+[![Tests](https://github.com/cimeria-labs/agentic-commerce-swarm/actions/workflows/tests.yml/badge.svg)](https://github.com/cimeria-labs/agentic-commerce-swarm/actions/workflows/tests.yml)
 
-> Multi-agent commercial orchestration workbench built with LangGraph, LLM agents, persistent memory, quality review and human-in-the-loop approval.
+> Experimental multi-agent commercial orchestration workbench for marketing/CRO proposals, safety review, persistent memory and human-in-the-loop approval.
 
 ## Overview
 
-**Agentic Commerce Swarm** is an experimental multi-agent workbench for commercial automation, marketing operations and conversion-focused website improvement.
+**Agentic Commerce Swarm** is a curated portfolio version of a commercial automation prototype. It explores how specialized AI agent roles can transform a high-level business request into a structured campaign and website-improvement proposal while preserving reviewability, role separation and safety constraints.
 
-The project explores how a coordinated group of AI agents can transform a high-level business request into a structured campaign proposal while preserving safety, reviewability and role separation.
+The current public version is intentionally conservative: it generates proposals and review artifacts. It does **not** autonomously modify production websites, publish campaigns, spend ad budget or operate real customer accounts.
 
-Instead of using a single chatbot to generate generic content, Agentic Commerce Swarm uses a staged pipeline of specialized agents:
+Instead of using a single chatbot to generate generic content, Agentic Commerce Swarm uses a staged pipeline of specialized roles:
 
 ```text
 User request
@@ -38,37 +38,48 @@ Human-in-the-loop approval
 
 ## Why this project matters
 
-Most LLM automations fail because they mix strategy, copywriting, design, implementation and approval in a single unstructured conversation.
+Many LLM automations fail because they mix strategy, copywriting, design, implementation and approval inside one unstructured conversation.
 
-This project separates those responsibilities into explicit agent roles and adds:
+This project separates those responsibilities into explicit role contracts and adds:
 
 - persistent memory;
+- output artifact generation;
 - quality review;
-- compliance/safety checks;
-- deterministic site-change workflow;
-- human approval before real changes;
-- versioned outputs for auditability.
+- sanitizer/compliance checks;
+- reviewable website-change proposals;
+- human approval before any real-world change;
+- sanitized demo data for public portfolio use.
 
-The result is a practical prototype for **agentic business operations**, not just prompt-based content generation.
+The goal is to demonstrate a practical pattern for **agentic business operations**, not to present a finished production SaaS.
 
 ---
 
 ## Current status
 
-This repository should be treated as a **functional prototype / experimental workbench**, not a production SaaS.
+This repository should be treated as a **functional prototype / experimental workbench**.
 
 | Area | Status |
 |---|---|
-| Multi-agent pipeline | Implemented |
-| CLI workflow | Implemented |
-| Persistent memory | Implemented / evolving |
-| Quality review loop | Implemented / needs stronger tests |
-| Sanitizer / compliance layer | Implemented as a pipeline role |
-| Human-in-the-loop approval | Implemented conceptually and operationally |
+| Staged multi-agent role pipeline | Implemented |
+| Interactive CLI workflow | Implemented |
+| LLM-backed role execution | Implemented |
+| Persistent memory with ChromaDB | Implemented with graceful fallback |
+| Markdown output artifacts | Implemented |
+| Sanitizer / compliance role | Implemented as a pipeline role |
+| QA auditor role | Implemented as final challenge layer |
+| Human-in-the-loop approval | Implemented as review workflow, not autonomous execution |
+| Public demo site | Implemented with fictional data |
+| Public sanitized demo run | Implemented |
+| Automated tests | Minimal smoke tests |
 | Rubric-based evaluation | Partial / roadmap |
-| Public demo dataset | Roadmap |
+| Deterministic apply flow | Roadmap |
 | Visual Kanban handoff UI | Roadmap |
-| Production deployment | Roadmap |
+| Daemon/background mode | Roadmap |
+| Production deployment | Not included |
+
+### Important implementation note
+
+The public repository currently uses a straightforward staged Python runner in `main.py`. `LangGraph` remains in the dependency set because the project lineage and intended evolution are graph-oriented, but this curated public version does not yet expose a full LangGraph state graph implementation.
 
 ---
 
@@ -81,52 +92,59 @@ This repository should be treated as a **functional prototype / experimental wor
 | Squad Lead | Converts the user request into a conservative internal brief |
 | Diagnostician | Reviews current context and previous outputs before strategy |
 | Strategist | Defines the narrowest conversion path supported by evidence |
-| Copywriter | Produces approved campaign and website copy |
+| Copywriter | Produces campaign and website copy |
 | Sanitizer | Checks unsafe, non-compliant or risky content |
-| Analyst | Scores quality and can force revision loops |
+| Analyst | Scores quality and can force revision loops in future versions |
 | Designer | Defines layout and visual direction without inventing copy |
 | WebDev | Maps approved copy into website-change proposals |
 | QA Auditor | Challenges the full pipeline before human review |
-| HITL | Final human decision point before real-world changes |
+| Human Reviewer | Decides whether anything should be applied outside the repo |
 
 ### Runtime flow
 
 ```text
 main.py
 ├── loads environment
-├── initializes LLMs
+├── initializes LLM clients
 ├── initializes persistent memory
-├── builds the agent pipeline
-├── executes agent nodes
-├── saves versioned outputs
-└── returns final report for human review
+├── executes role stages in sequence
+├── reads fictional demo-site context
+├── saves versioned Markdown outputs
+├── stores run summaries in memory when available
+└── returns final QA report for human review
 ```
 
 ### Memory layer
 
-The memory layer is designed to preserve learning across runs.
+The memory layer is designed to preserve learning across runs while staying safe for public use.
 
-Current memory categories include:
+Current memory behavior:
+
+- uses ChromaDB persistence when available;
+- stores run summaries, strategy, copy, QA report and score;
+- fails gracefully if local memory cannot be initialized;
+- keeps generated local memory out of Git.
+
+Future memory categories may include:
 
 - approved campaigns;
 - rejected outputs and reasons;
 - strategies;
-- web development proposals.
-
-This allows the swarm to avoid repeating weak patterns and reuse stronger historical decisions.
+- web development proposals;
+- QA findings.
 
 ---
 
 ## Tech stack
 
 - Python
-- LangGraph
 - LangChain
-- OpenAI-compatible chat models
-- ChromaDB
+- OpenAI-compatible chat models through `langchain-openai`
+- ChromaDB for local memory persistence
 - python-dotenv
 - Rich CLI utilities
-- pytest for minimal validation
+- pytest for smoke validation
+- LangGraph as planned orchestration evolution
 
 See [`requirements.txt`](requirements.txt) and [`requirements-dev.txt`](requirements-dev.txt) for dependencies.
 
@@ -136,10 +154,10 @@ See [`requirements.txt`](requirements.txt) and [`requirements-dev.txt`](requirem
 
 ```text
 .
-├── main.py                     # Main orchestrator
+├── main.py                     # Main staged orchestrator
 ├── squad.py                    # Interactive CLI entrypoint
 ├── memory.py                   # ChromaDB memory layer
-├── requirements.txt            # Python dependencies
+├── requirements.txt            # Runtime dependencies
 ├── requirements-dev.txt        # Test dependencies
 ├── .env.example                # Safe environment template
 ├── docs/
@@ -147,11 +165,12 @@ See [`requirements.txt`](requirements.txt) and [`requirements-dev.txt`](requirem
 │   ├── WORKFLOW.md             # Development workflow
 │   ├── ROADMAP.md              # Current and future scope
 │   ├── SECURITY.md             # Secrets and data policy
-│   └── HANDOFF_MODEL.md        # Logical agent handoff
+│   ├── HANDOFF_MODEL.md        # Logical agent handoff
+│   └── PUBLIC_RELEASE_CHECKLIST.md
 ├── examples/
 │   ├── demo-site/              # Fictional demo website
-│   └── sanitized-runs/         # Public-safe examples
-└── tests/                      # Minimal smoke/unit tests
+│   └── sanitized-runs/         # Public-safe example outputs
+└── tests/                      # Minimal smoke tests
 ```
 
 ---
@@ -198,17 +217,24 @@ Run the interactive CLI:
 python squad.py
 ```
 
----
-
-## Demo artifact
-
-A sanitized example run is available at:
+Example prompt:
 
 ```text
+Create a conversion-focused campaign and website improvement proposal for a fictional clinic scheduling AI assistant.
+```
+
+---
+
+## Demo artifacts
+
+Public-safe artifacts are available in:
+
+```text
+examples/demo-site/index.html
 examples/sanitized-runs/demo_run.md
 ```
 
-It uses fictional data and demonstrates the expected structure of a full pipeline output without exposing private business information.
+They use fictional data and demonstrate the expected structure of a pipeline output without exposing private business information.
 
 ---
 
@@ -219,11 +245,26 @@ This project is designed around the idea that AI-generated business changes shou
 Core safety principles:
 
 - no credentials in Git;
+- no raw customer data in public examples;
 - no direct production edits without human review;
-- copy, design and web implementation should remain separate roles;
-- outputs should be saved as artifacts before being promoted;
-- raw business data must be sanitized before publication;
+- copy, design and web implementation remain separate roles;
+- outputs are saved as artifacts before promotion;
+- real business data must be sanitized before publication;
 - historical transcripts should not override verified code.
+
+Preferred workflow:
+
+```text
+agent output
+↓
+QA report
+↓
+human review
+↓
+approved artifact
+↓
+manual implementation or controlled apply
+```
 
 ---
 
@@ -232,24 +273,44 @@ Core safety principles:
 This repo is useful as a portfolio case for:
 
 - AI automation engineering;
-- multi-agent orchestration;
-- LangGraph pipelines;
+- multi-agent orchestration patterns;
+- commercial automation prototypes;
 - LLM memory systems;
 - human-in-the-loop workflows;
-- commercial automation;
 - AI-assisted website optimization;
-- quality and compliance layers for agentic systems.
+- quality and compliance layers for agentic systems;
+- public sanitization of a private prototype.
+
+---
+
+## What this repository is not
+
+This repo is not:
+
+- a production SaaS;
+- a marketplace publisher;
+- an autonomous ad-spending agent;
+- a real customer case study;
+- a guarantee of conversion uplift;
+- a fully implemented LangGraph workflow yet;
+- a system that should be pointed at production assets without review.
 
 ---
 
 ## Curriculum positioning
 
 **Project title:** Agentic Commerce Swarm  
-**Short description:** Multi-agent commercial orchestration workbench built with LangGraph, ChromaDB memory, specialized LLM agents, QA review and human-in-the-loop approval.
+**Short description:** Experimental multi-agent commercial orchestration workbench combining specialized LLM roles, persistent memory, sanitizer checks, QA review and human-in-the-loop approval for marketing/CRO proposals.
 
 Example resume bullet:
 
-> Built a LangGraph-based multi-agent workbench for commercial automation, combining specialized LLM agents, persistent ChromaDB memory, quality review, compliance checks and human-in-the-loop approval before website-change proposals.
+> Built a Python-based multi-agent workbench for commercial automation, combining specialized LLM roles, persistent ChromaDB memory, safety review, QA scoring and human-in-the-loop approval before website-change proposals.
+
+---
+
+## License
+
+MIT. See [`LICENSE`](LICENSE).
 
 ---
 
