@@ -124,8 +124,9 @@ This allows the swarm to avoid repeating weak patterns and reuse stronger histor
 - ChromaDB
 - python-dotenv
 - Rich CLI utilities
+- pytest for minimal validation
 
-See [`requirements.txt`](requirements.txt) for the current dependency list.
+See [`requirements.txt`](requirements.txt) and [`requirements-dev.txt`](requirements-dev.txt) for dependencies.
 
 ---
 
@@ -137,6 +138,7 @@ See [`requirements.txt`](requirements.txt) for the current dependency list.
 ├── squad.py                    # Interactive CLI entrypoint
 ├── memory.py                   # ChromaDB memory layer
 ├── requirements.txt            # Python dependencies
+├── requirements-dev.txt        # Test dependencies
 ├── .env.example                # Safe environment template
 ├── docs/
 │   ├── ARCHITECTURE.md         # Architecture notes
@@ -145,8 +147,9 @@ See [`requirements.txt`](requirements.txt) for the current dependency list.
 │   ├── SECURITY.md             # Secrets and data policy
 │   └── HANDOFF_MODEL.md        # Logical agent handoff
 ├── examples/
+│   ├── demo-site/              # Fictional demo website
 │   └── sanitized-runs/         # Public-safe examples
-└── prompts/                    # Prompt assets
+└── tests/                      # Minimal smoke/unit tests
 ```
 
 ---
@@ -168,6 +171,13 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
+For development and tests:
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
 Create your local environment file:
 
 ```bash
@@ -185,6 +195,18 @@ Run the interactive CLI:
 ```bash
 python squad.py
 ```
+
+---
+
+## Demo artifact
+
+A sanitized example run is available at:
+
+```text
+examples/sanitized-runs/demo_run.md
+```
+
+It uses fictional data and demonstrates the expected structure of a full pipeline output without exposing private business information.
 
 ---
 
