@@ -1,5 +1,7 @@
 # Agentic Commerce Swarm
 
+[![Tests](https://github.com/clawmerio/agentic-commerce-swarm/actions/workflows/tests.yml/badge.svg)](https://github.com/clawmerio/agentic-commerce-swarm/actions/workflows/tests.yml)
+
 > Multi-agent commercial orchestration workbench built with LangGraph, LLM agents, persistent memory, quality review and human-in-the-loop approval.
 
 ## Overview
